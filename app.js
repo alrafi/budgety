@@ -84,6 +84,20 @@ var budgetController = (function() {
         totalExp: data.totals.exp,
         percentage: data.percentage
       };
+    },
+
+    deleteItem: function(type, ID) {
+      var ids, index;
+
+      ids = data.allItems[type].map(function(current) {
+        return current.id;
+      });
+
+      index = ids.indexOf(ID);
+
+      if (index !== -1) {
+        data.allItems[type].splice(index, 1);
+      }
     }
   };
 })();
@@ -237,7 +251,10 @@ var controller = (function(UICtrl, budgetCtrl) {
     if (itemID) {
       splitID = itemID.split('-');
       type = splitID[0];
-      ID = splitID[1];
+      ID = parseInt(splitID[1]);
+      console.log(ID);
+
+      budgetCtrl.deleteItem(type, ID);
     }
   };
 
