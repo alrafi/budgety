@@ -185,6 +185,11 @@ var UIController = (function() {
       } else {
         document.querySelector(DOMStrings.percentageLabel).textContent = '---';
       }
+    },
+
+    deleteListItem: function(selectorID) {
+      var el = document.getElementById(selectorID);
+      el.parentNode.removeChild(el);
     }
   };
 })();
@@ -254,7 +259,14 @@ var controller = (function(UICtrl, budgetCtrl) {
       ID = parseInt(splitID[1]);
       console.log(ID);
 
+      // delete item from data structure
       budgetCtrl.deleteItem(type, ID);
+
+      // delete item on UI
+      UICtrl.deleteListItem(itemID);
+
+      // update budget
+      updateBudget();
     }
   };
 
