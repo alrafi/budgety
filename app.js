@@ -142,7 +142,8 @@ var UIController = (function() {
     incomeLabel: '.budget__income--value',
     expenseLabel: '.budget__expenses--value',
     percentageLabel: '.budget__expenses--percentage',
-    container: '.container'
+    container: '.container',
+    itemPercentage: '.item__percentage'
   };
 
   return {
@@ -165,7 +166,7 @@ var UIController = (function() {
         element = DOMStrings.expenseContainer;
 
         html = `<div class="item clearfix" id="exp-%id%"><div class="item__description">%description%</div>
-        <div class="right clearfix"><div class="item__value">- %value%</div><div class="item__percentage">21%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>`;
+        <div class="right clearfix"><div class="item__value">- %value%</div><div class="item__percentage">%percentage%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>`;
       } else if (type === 'inc') {
         element = DOMStrings.incomeContainer;
 
@@ -213,6 +214,24 @@ var UIController = (function() {
       }
     },
 
+    displayPercentage: function(percentages) {
+      fields = document.querySelectorAll(DOMStrings.itemPercentage);
+
+      var nodeListForEach = function(list, callback) {
+        for (var i = 0; i < list.length; i++) {
+          callback(list[i], i);
+        }
+      };
+
+      nodeListForEach(fields, function(current, index) {
+        if (percentages[index] > 0) {
+          current.textContent = percentages[index] + '%';
+        } else {
+          current.textContent = '---';
+        }
+      });
+    },
+
     deleteListItem: function(selectorID) {
       var el = document.getElementById(selectorID);
       el.parentNode.removeChild(el);
@@ -256,6 +275,7 @@ var controller = (function(UICtrl, budgetCtrl) {
     var percentages = budgetCtrl.getPercentages();
     // update the ui
     console.log(percentages);
+    UICtrl.displayPercentage(percentages);
   };
 
   var ctrlAddItem = function() {
