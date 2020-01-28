@@ -146,6 +146,46 @@ var UIController = (function() {
     itemPercentage: '.item__percentage'
   };
 
+  var giveComma = function(int) {};
+
+  var formatNumber = function(num, type) {
+    var numSplit, int, dec;
+
+    num = Math.abs(num);
+    num = num.toFixed(2);
+    numSplit = num.split('.');
+
+    int = numSplit[0];
+    dec = numSplit[1];
+
+    if (int.length > 3) {
+      if (int.length > 6) {
+        if (int.length > 9) {
+          int =
+            int.substr(0, int.length - 9) +
+            ',' +
+            int.substr(int.length - 9, 3) +
+            ',' +
+            int.substr(int.length - 6, 3) +
+            ',' +
+            int.substr(int.length - 3, 3);
+        } else {
+          int =
+            int.substr(0, int.length - 6) +
+            ',' +
+            int.substr(int.length - 6, 3) +
+            ',' +
+            int.substr(int.length - 3, 3);
+        }
+      } else {
+        int =
+          int.substr(0, int.length - 3) + ',' + int.substr(int.length - 3, 3);
+      }
+    }
+
+    return (type === 'exp' ? '-' : '+') + ' ' + int + '.' + dec;
+  };
+
   return {
     getInput: function() {
       return {
@@ -166,19 +206,19 @@ var UIController = (function() {
         element = DOMStrings.expenseContainer;
 
         html = `<div class="item clearfix" id="exp-%id%"><div class="item__description">%description%</div>
-        <div class="right clearfix"><div class="item__value">- %value%</div><div class="item__percentage">%percentage%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>`;
+        <div class="right clearfix"><div class="item__value">%value%</div><div class="item__percentage">%percentage%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>`;
       } else if (type === 'inc') {
         element = DOMStrings.incomeContainer;
 
         html = `<div class="item clearfix" id="inc-%id%"><div class="item__description">%description%</div>
-        <div class="right clearfix"><div class="item__value">+ %value%</div><div class="item__delete">
+        <div class="right clearfix"><div class="item__value">%value%</div><div class="item__delete">
         <button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></<div></div></div>`;
       }
 
       // replace text on html with real data
       newHtml = html.replace('%id%', obj.id);
       newHtml = newHtml.replace('%description%', obj.description);
-      newHtml = newHtml.replace('%value%', obj.value);
+      newHtml = newHtml.replace('%value%', formatNumber(obj.value, obj.type));
 
       // insert html into the DOM
       document.querySelector(element).insertAdjacentHTML('beforeend', newHtml);
@@ -193,7 +233,7 @@ var UIController = (function() {
 
       fieldsArr = Array.prototype.slice.call(fields);
 
-      fieldsArr.forEach(function(current, index, array) {
+      fieldsArr.forEach(function(current) {
         current.value = '';
       });
 
@@ -201,10 +241,20 @@ var UIController = (function() {
     },
 
     displayBudget: function(obj) {
-      document.querySelector(DOMStrings.budgetLabel).textContent = obj.budget;
-      document.querySelector(DOMStrings.incomeLabel).textContent = obj.totalInc;
-      document.querySelector(DOMStrings.expenseLabel).textContent =
-        obj.totalExp;
+      var type;
+      obj.budget > 0 ? (type = 'inc') : (type = 'exp');
+
+      document.querySelector(DOMStrings.budgetLabel).textContent = formatNumber(
+        obj.budget,
+        type
+      );
+      document.querySelector(DOMStrings.incomeLabel).textContent = formatNumber(
+        obj.totalInc,
+        'inc'
+      );
+      document.querySelector(
+        DOMStrings.expenseLabel
+      ).textContent = formatNumber(obj.totalExp, 'exp');
 
       if (obj.percentage > 0) {
         document.querySelector(DOMStrings.percentageLabel).textContent =
@@ -274,7 +324,6 @@ var controller = (function(UICtrl, budgetCtrl) {
     // read percentage from the budget controller
     var percentages = budgetCtrl.getPercentages();
     // update the ui
-    console.log(percentages);
     UICtrl.displayPercentage(percentages);
   };
 
